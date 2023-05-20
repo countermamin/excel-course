@@ -1,8 +1,10 @@
 /* eslint-disable indent */
 import {ExcelComponent} from '@core/ExcelComponent';
-import {shouldResize} from './table.functions';
+import {$} from '@core/dom';
+import {isCell, shouldResize} from './table.functions';
 import {resizeHandler} from './table.resize';
 import {createTable} from './table.tamplate';
+import {TableSelection} from '@/components/table/TableSelection';
 
 export class Table extends ExcelComponent {
   static className = 'excel__table';
@@ -17,9 +19,26 @@ export class Table extends ExcelComponent {
     return createTable(20);
   }
 
+  prepare() {
+    console.log('prepare');
+  }
+
+  init() {
+    super.init();
+
+    console.log('init');
+
+    this.selection = new TableSelection();
+    const $cell = this.$root.find('[data-id="0:0"]');
+    this.selection.select($cell);
+  }
+
   onMousedown(event) {
     if (shouldResize(event)) {
       resizeHandler(this.$root, event);
+    } else if (isCell(event)) {
+      const $target = $(event.target);
+      this.selection.select($target);
     }
   }
 }
