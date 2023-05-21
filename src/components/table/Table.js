@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 import {ExcelComponent} from '@core/ExcelComponent';
 import {$} from '@core/dom';
-import {isCell, shouldResize} from './table.functions';
+import {isCell, matrix, shouldResize} from './table.functions';
 import {resizeHandler} from './table.resize';
 import {createTable} from './table.tamplate';
 import {TableSelection} from '@/components/table/TableSelection';
@@ -25,9 +25,6 @@ export class Table extends ExcelComponent {
 
   init() {
     super.init();
-
-    console.log('init');
-
     this.selection = new TableSelection();
     const $cell = this.$root.find('[data-id="0:0"]');
     this.selection.select($cell);
@@ -38,7 +35,15 @@ export class Table extends ExcelComponent {
       resizeHandler(this.$root, event);
     } else if (isCell(event)) {
       const $target = $(event.target);
-      this.selection.select($target);
+      if (event.shiftKey) {
+        const $cells = matrix($target, this.selection.current)
+          .map((id) => this.$root.find(`[data-id="${id}"]`));
+        this.selection.selectGroup($cells);
+      } else {
+        this.selection.select($target);
+      }
     }
   }
 }
+
+
